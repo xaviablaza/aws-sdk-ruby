@@ -69,14 +69,21 @@ module AwsSdkCodeGenerator
 
       def endpoint(endpoint, levels)
         res = StringIO.new
-        res << "return Aws::Endpoints::Endpoint.new(url: #{str(endpoint['url'])}"
-        if endpoint['headers']
-          res << ", headers: #{templated_hash_to_s(endpoint['headers'])}"
+        if endpoint['fn']
+          res << "return #{fn(endpoint)}\n"
+        elsif endpoint['ref']
+          res << "return #{underscore(endpoint['ref'])}\n"
+        else
+          res << "return Aws::Endpoints::Endpoint.new(url: #{str(endpoint['url'])}"
+          if endpoint['headers']
+            res << ", headers: #{templated_hash_to_s(endpoint['headers'])}"
+          end
+          if endpoint['properties']
+            res << ", properties: #{templated_hash_to_s(endpoint['properties'])}"
+          end
+          res << ")\n"
         end
-        if endpoint['properties']
-          res << ", properties: #{templated_hash_to_s(endpoint['properties'])}"
-        end
-        res << ")\n"
+
         indent(res.string, levels)
       end
 
@@ -240,6 +247,8 @@ module AwsSdkCodeGenerator
           "Aws::Endpoints::Matchers.aws_parse_arn"
         when 'aws.isVirtualHostableS3Bucket'
           "Aws::Endpoints::Matchers.aws_virtual_hostable_s3_bucket?"
+        when 'standardRegionalEndpoints'
+          "Aws::Endpoints::TemplateFunctions.standard_regional_endpoints"
         else
           raise "Function not found: #{@fn}"
         end
