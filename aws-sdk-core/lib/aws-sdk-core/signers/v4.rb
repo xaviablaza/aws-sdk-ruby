@@ -84,7 +84,7 @@ module Aws
         end
 
         params.set("X-Amz-Algorithm", "AWS4-HMAC-SHA256")
-        params.set("X-Amz-Credential", credential(now))
+        params.set("X-Amz-Credential", credential(now)) if @credentials
         params.set("X-Amz-Date", now)
         params.set("X-Amz-Expires", options[:expires_in].to_s)
         params.set("X-Amz-SignedHeaders", signed_headers(request))
