@@ -88,8 +88,8 @@ module Aws
         params.set("X-Amz-Date", now)
         params.set("X-Amz-Expires", options[:expires_in].to_s)
         params.set("X-Amz-SignedHeaders", signed_headers(request))
-        params.set('X-Amz-Security-Token', @credentials.session_token) if
-          @credentials.session_token
+        params.set('X-Amz-Security-Token', @credentials.try(:session_token)) if
+          @credentials.try(:session_token)
 
         endpoint = request.endpoint
         if endpoint.query
@@ -97,7 +97,7 @@ module Aws
         else
           endpoint.query = params.to_s
         end
-        endpoint.to_s + '&X-Amz-Signature=' + signature(request, now, body_digest)
+        endpoint.to_s #+ '&X-Amz-Signature=' + signature(request, now, body_digest)
       end
 
       def authorization(request, datetime, body_digest)
